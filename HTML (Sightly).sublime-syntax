@@ -20,10 +20,13 @@ contexts:
             - meta_scope: comment.block.sightly
             - match: '\*/-->'
               pop: true
-        - match: '\${'
+        - match: '(\$){'
           scope: punctuation.section.embedded.sightly
+          captures:
+            1: keyword.operator.embedded.sightly
           push:
             - meta_scope: source.sightly.embedded.html
+            - clear_scopes: true
             - match: '}'
               scope: punctuation.section.embedded.sightly
               pop: true
