@@ -8,10 +8,10 @@
 <div class="${ properties.title || properties.otherTitle }">
 //                              ^^ keyword.operator.logical.sightly
 
-<template data-sly-template.historical="${ @ requirement = 'This string\t ' }">
+<template data-sly-template.historical="${ @ requirement = 'This = string\t ' }">
 
   <sly data-sly-use.h="dynamic/historical.html" 
-      data-sly-call="${ h.temp @ historicalRequirement = requirement}"/>
+      data-sly-call="${ h.temp @ historicalRequirement = requirement, hello = true }"/>
 </template>
 <!--/* Here is a comment */-->
 //     ^^^^^^^^^^^^^^^^^ comment.block.sightly
