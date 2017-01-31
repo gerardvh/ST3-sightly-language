@@ -1,0 +1,19 @@
+<!-- SYNTAX TEST "Packages/sightly/Sightly.sublime-syntax" -->
+<div class="accordion-wrap ${ properties.title }">
+                      <!-- ^^ keyword.other.block.start -->
+                      <!--                     ^ keyword.other.block.end -->
+                      <!--   ^^^^^^^^^^^^^^^^^^ meta.expression.sightly -->
+<!-- <- text.html.basic     -->
+<div class="accordion-wrap ${ properties.title }">
+                                      <!--       ^ punctuation.definition.tag.end.html -->
+
+
+<template data-sly-template.historical="${ @ requirement }">
+                                      <!--   ^^^^^^^^^^^ meta.optionList.sightly -->
+  <sly data-sly-use.h="dynamic/historical.html" 
+      data-sly-call="${ h.temp @ historicalRequirement = requirement}"/>
+</template>
+<!--/* comment */-->
+
+<!--  -->
+<script>var bar='${someText @ context="scriptString"}';</script>

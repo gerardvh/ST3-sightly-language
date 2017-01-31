@@ -1,0 +1,69 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+# For Sightly grammar reference, see: 
+# https://github.com/Adobe-Marketing-Cloud/htl-spec/blob/master/SPECIFICATION.md#1-expression-language-syntax-and-semantics
+file_extensions:
+  - html
+scope: text.html.sightly
+
+prototype:
+  comment: #TODO fix this
+    - match: '(<!--/*)(.?)(*/-->)'
+      captures:
+        1: comment.block.start.sightly
+        2: comment.block.content.sightly
+        3: comment.block.end.sightly
+
+contexts:
+  main:
+    # Embedded in HTML, so use that syntax until we get to a Sightly Expression Block
+    - match: ''
+      push: 'Packages/HTML/HTML.sublime-syntax'
+      with_prototype:
+        - match: '\${'
+          scope: keyword.other.block.start.sightly
+          push: expression
+
+  string:
+    - match: (["'])(?:(?=(\\?))\2.)*?\1
+
+  expression:
+    - clear_scopes: true
+    - meta_content_scope: meta.expression.sightly
+    - match: '}' # end of Sightly block go back to regular HTML
+      scope: keyword.other.block.end.sightly
+      pop: true
+    - match: '@'
+      scope: keyword.operator.optionList.sightly
+      set: optionList
+
+  exprNode:
+    - meta_content_scope: meta.exprNode.sightly
+    # Each part of an expression
+
+  optionList:
+    - clear_scopes: true
+    - meta_content_scope: meta.optionList.sightly
+    - include: option
+    - include: optionValues
+    # Swap back to expression to watch for the ending `}` and
+    - include: expression
+
+  option:
+    - meta_content_scope: meta.optionList.option.sightly
+    - match: ([a-zA-Z_]+[a-zA-Z0-9_-]*)\s?(=)\s?() # TODO: add 3rd capture for the optionValues
+      captures:
+        1: constant.other.directive.option.id.sightly
+        2: keyword.operator.assignment.sightly
+    # Match on an `=` and the second piece is an `optionValues` section
+
+  optionValues:
+    - meta_content_scope: meta.optionList.optionValues.sightly
+    # can include an `exprNode` or a `valueList`
+
+  valueList:
+    - meta_content_scope: meta.valueList.sightly
+
+
+  
