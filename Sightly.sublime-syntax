@@ -4,17 +4,35 @@
 file_extensions:
   - sightly
 scope: source.sightly
+
+variables:
+  validVariable: '[A-Za-z_][A-Za-z_0-9]*' # TODO: include `:` here as possible to use in a variable name?
+  validField: '[A-Za-z_0-9]*'
+
 contexts:
   main:
-    - include: option
-    - include: optionList
+    - include: expression
+
+  expression:
+    - meta_scope: meta.block.sightly
+    # - include: optionList
+    - include: propertyAccess
+    - include: booleans
     - include: operators
     - include: strings
+
+  operators:
+    - match: '&&|!|\|\||\?|:'
+      scope: keyword.operator.logical.sightly
+    - match: '@'
+      scope: keyword.operator.optionList.sightly
+    - match: '='
+      scope: keyword.operator.assignment.sightly
 
   strings:
     - include: string-quoted-single
     - include: string-quoted-double
-    
+
   string-quoted-single:
     - match: "'"
       scope: punctuation.definition.string.begin.sightly
@@ -37,25 +55,27 @@ contexts:
         - match: \\.
           scope: constant.character.escape.sightly
 
-  expression:
-    - meta_content_scope: meta.expression.sightly
+  propertyAccess:
+    - match: '({{validVariable}})(\.?)({{validField}})'
+      captures:
+        1: variable.other.constant.sightly 
+        2: punctuation.accessor.sightly keyword.operator.navigation.sightly
+        3: variable.other.member.sightly meta.property.object.sightly meta.function-call.sightly
+
+  booleans:
+    - match: 'true|false'
+      scope: constant.language.boolean.sightly  
 
   exprNode:
     - meta_content_scope: meta.exprNode.sightly
     # Each part of an expression
 
   optionList:
-    - meta_content_scope: meta.optionList.sightly
-    - match: '@'
-      scope: keyword.operator.optionList.sightly
-    - include: option
-    - include: optionValues
-
-  option:
-    - meta_content_scope: meta.optionList.option.sightly
-    - match: ([a-zA-Z_]+[a-zA-Z0-9_-]*)\s?(=)\s?() # TODO: add 3rd capture for the optionValues
+    - match: ([a-zA-Z_]+[a-zA-Z0-9_-]*)
+                \s?(=)\s?
+                  () # TODO: add 3rd capture for the optionValues
       captures:
-        1: constant.other.directive.option.id.sightly
+        1: meta.option.key.sightly
         2: keyword.operator.assignment.sightly
     # Match on an `=` and the second piece is an `optionValues` section
 
@@ -65,7 +85,3 @@ contexts:
 
   valueList:
     - meta_content_scope: meta.valueList.sightly
-
-  operators:
-    - match: '&&|!|\|\||\?|:'
-      scope: keyword.operator.logical.sightly
