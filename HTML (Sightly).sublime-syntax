@@ -21,13 +21,13 @@ contexts:
             - match: '\*/-->'
               pop: true
         - match: '(\$){'
-          scope: punctuation.section.embedded.sightly
+          scope: punctuation.section.embedded.begin.sightly
           captures:
             1: keyword.operator.embedded.sightly
           push:
-            - meta_scope: source.sightly.embedded.html
+            - meta_scope: source.sightly.embedded.html meta.block.sightly
             - clear_scopes: true
             - match: '}'
-              scope: punctuation.section.embedded.sightly
+              scope: punctuation.section.embedded.end.sightly
               pop: true
             - include: 'Sightly.sublime-syntax'
