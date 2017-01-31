@@ -41,8 +41,7 @@ contexts:
         - match: "'"
           scope: punctuation.definition.string.end.sightly
           pop: true
-        - match: \\.
-          scope: constant.character.escape.sightly
+        - include: escapeSequences
 
   string-quoted-double:
     - match: '"'
@@ -52,8 +51,13 @@ contexts:
         - match: '"'
           scope: punctuation.definition.string.end.sightly
           pop: true
-        - match: \\.
-          scope: constant.character.escape.sightly
+        - include: escapeSequences
+
+  escapeSequences:
+    - match: '\\u[a-fA-F0-9]{4}'
+      scope: constant.character.escape.unicode.sightly
+    - match: \\.
+      scope: constant.character.escape.sightly
 
   propertyAccess:
     - match: '({{validVariable}})(\.?)({{validField}})'
