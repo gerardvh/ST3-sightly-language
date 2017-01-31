@@ -9,15 +9,33 @@ contexts:
     - include: option
     - include: optionList
     - include: operators
-    - include: string
+    - include: strings
 
-  string:
-    - match: (["'])(?:(?=(\\?))(\2.))*?(\1)
-      scope: string.quoted.embedded.sightly
-      captures:
-        1: punctuation.definition.string.begin.sightly
-        3: constant.character.escape.sightly
-        4: punctuation.definition.string.end.sightly
+  strings:
+    - include: string-quoted-single
+    - include: string-quoted-double
+    
+  string-quoted-single:
+    - match: "'"
+      scope: punctuation.definition.string.begin.sightly
+      push:
+        - meta_scope: string.quoted.single.sightly
+        - match: "'"
+          scope: punctuation.definition.string.end.sightly
+          pop: true
+        - match: \\.
+          scope: constant.character.escape.sightly
+
+  string-quoted-double:
+    - match: '"'
+      scope: punctuation.definition.string.begin.sightly
+      push:
+        - meta_scope: string.quoted.double.sightly
+        - match: '"'
+          scope: punctuation.definition.string.end.sightly
+          pop: true
+        - match: \\.
+          scope: constant.character.escape.sightly
 
   expression:
     - meta_content_scope: meta.expression.sightly
