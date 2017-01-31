@@ -6,31 +6,32 @@ file_extensions:
 scope: source.sightly
 contexts:
   main:
+    - include: option
+    - include: optionList
+    - include: operators
+    - include: string
 
   string:
-    - match: (["'])(?:(?=(\\?))\2.)*?\1
+    - match: (["'])(?:(?=(\\?))(\2.))*?(\1)
+      scope: string.quoted.embedded.sightly
+      captures:
+        1: punctuation.definition.string.begin.sightly
+        3: constant.character.escape.sightly
+        4: punctuation.definition.string.end.sightly
 
   expression:
-    - clear_scopes: true
     - meta_content_scope: meta.expression.sightly
-    - match: '}' # end of Sightly block go back to regular HTML
-      scope: keyword.other.block.end.sightly
-      pop: true
-    - match: '@'
-      scope: keyword.operator.optionList.sightly
-      set: optionList
 
   exprNode:
     - meta_content_scope: meta.exprNode.sightly
     # Each part of an expression
 
   optionList:
-    - clear_scopes: true
     - meta_content_scope: meta.optionList.sightly
+    - match: '@'
+      scope: keyword.operator.optionList.sightly
     - include: option
     - include: optionValues
-    # Swap back to expression to watch for the ending `}` and
-    - include: expression
 
   option:
     - meta_content_scope: meta.optionList.option.sightly
@@ -47,5 +48,6 @@ contexts:
   valueList:
     - meta_content_scope: meta.valueList.sightly
 
-
-  
+  operators:
+    - match: '&&|!|\|\||\?|:'
+      scope: keyword.operator.logical.sightly
