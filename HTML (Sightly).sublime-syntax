@@ -10,7 +10,7 @@ scope: text.html.sightly
 
 variables:
   validVariable: '[A-Za-z_][A-Za-z_0-9]*' # TODO: include `:` here as possible to use in a variable name?
-  validField: '[A-Za-z_0-9]*'
+  validField: '[A-Za-z_0-9:]*' 
 
 contexts:
   main:
@@ -28,32 +28,49 @@ contexts:
           scope: punctuation.section.embedded.begin.sightly
           captures:
             1: keyword.operator.embedded.sightly
-          push:
-            - meta_scope: source.sightly.embedded.html meta.block.sightly
-            - clear_scopes: true
-            - include: sightly
+          push: sightly
+          with_prototype:
             - match: '}'
               scope: punctuation.section.embedded.end.sightly
               pop: true
 
   sightly:
+    - meta_scope: source.sightly.embedded.html meta.block.sightly
+    - clear_scopes: true
     - include: expression
+    - match: '@'
+      scope: keyword.operator.optionList.sightly
+      set: optionList
+
+  optionList:
+    - meta_scope: source.sightly.embedded.html meta.block.sightly meta.optionList.sightly
+    - clear_scopes: true
+    - include: expression
+    - include: option
+  
+  option:
+    - match: ([a-zA-Z_]+[a-zA-Z0-9_-]*)
+                \s?(=)\s?
+                  (.*)\s?
+                    (?=,|}) # TODO: add 3rd capture for the optionValues
+      captures:
+        1: meta.option.key.sightly
+        2: keyword.operator.assignment.sightly
+        3: meta.option.value.sightly
 
   expression:
-    - meta_scope: meta.block.sightly
-    # - include: optionList
+    - include: strings
     - include: propertyAccess
     - include: booleans
     - include: operators
-    - include: strings
+    - include: numbers
 
   operators:
-    - match: '&&|!|\|\||\?|:'
+    - match: '&&|!|\|\|'
       scope: keyword.operator.logical.sightly
-    - match: '@'
-      scope: keyword.operator.optionList.sightly
     - match: '='
       scope: keyword.operator.assignment.sightly
+    # TODO: add ternary operators
 
   strings:
     - include: string-quoted-single
@@ -86,31 +103,23 @@ contexts:
       scope: constant.character.escape.sightly
 
   propertyAccess:
-    - match: '({{validVariable}})(\.?)({{validField}})'
+    - match: '({{validVariable}})(\.)({{validField}})'
       captures:
-        1: variable.other.constant.sightly 
+        1: variable.other.sightly 
         2: punctuation.accessor.sightly keyword.operator.navigation.sightly
-        3: variable.other.member.sightly meta.property.object.sightly meta.function-call.sightly
+        3: variable.other.member.sightly meta.property.object.sightly variable.function.sightly
 
   booleans:
     - match: 'true|false'
-      scope: constant.language.boolean.sightly  
+      scope: constant.language.boolean.sightly
+
+  numbers:
+    - match: \d
+      scope: constant.numeric.sightly
 
   exprNode:
     - meta_content_scope: meta.exprNode.sightly
     # Each part of an expression
-
-  optionList:
-    - match: \}
-      pop: true
-    - match: ([a-zA-Z_]+[a-zA-Z0-9_-]*)
-                \s?(=)\s?
-                  (.*\s?)
-                    (?:,|\})? # TODO: add 3rd capture for the optionValues
-      captures:
-        1: meta.option.key.sightly
-        2: keyword.operator.assignment.sightly
-        3: meta.option.value.sightly
 
   optionValues:
     - meta_content_scope: meta.optionList.optionValues.sightly
