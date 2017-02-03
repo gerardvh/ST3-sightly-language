@@ -20,6 +20,7 @@
 //                                                     ^^^^^^  constant.character.escape.unicode.sightly
 
 <script>var bar='${someText @ context=true}';</script>
+//                                              ^^^^ text.html.basic
 
 <!--/* Identifiers: */-->
 ${myVar}
@@ -35,10 +36,15 @@ ${myArray[indexVar]}
 
 <!--/* Literals: */-->
 ${true}
+// ^^  constant.language.boolean.sightly
 ${42}
+//^^ constant.numeric.sightly
 ${'string'}
+// ^^^^^^ string.quoted.single.sightly
 ${"string"}
+// ^^^^^^ string.quoted.double.sightly
 ${[1, 2, 3, true, 'string']}
+// ^    constant.numeric.sightly
 
 
 <!--/* Scripts */-->
@@ -50,6 +56,7 @@ ${[1, 2, 3, true, 'string']}
 <a href="#whatever" style="color: ${colorName @ context='styleToken'};">Link</a>
 <style>
     a.${className @ context="styleToken"} {
+//                  ^^^^^^^^^^^^^^^^^^^^  meta.optionList.sightly
         font-family: '${fontFamily @ context="styleString"}', sans-serif;
         color: #${colorHashValue @ context="styleToken"};
         margin-${side @ context="styleToken"}: 1em; /* E.g. for bi-directional text */
