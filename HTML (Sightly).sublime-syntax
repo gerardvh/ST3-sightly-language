@@ -9,7 +9,7 @@ file_extensions:
 scope: text.html.sightly
 
 variables:
-  validVariable: '[A-Za-z_][A-Za-z_0-9]*' # TODO: include `:` here as possible to use in a variable name?
+  identifier: '[A-Za-z_][A-Za-z_0-9:]*'
   validField: '[A-Za-z_0-9:]*' 
 
 contexts:
@@ -116,7 +116,7 @@ contexts:
       scope: constant.character.escape.sightly
 
   propertyAccess:
-    - match: '({{validVariable}})(\.)({{validField}})'
+    - match: '({{identifier}})(\.)({{validField}})'
       captures:
         1: variable.other.sightly 
         2: punctuation.accessor.sightly keyword.operator.navigation.sightly
