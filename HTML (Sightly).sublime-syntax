@@ -29,29 +29,28 @@ contexts:
           captures:
             1: keyword.operator.embedded.sightly
           push: sightly
-          with_prototype:
-            - match: '}'
-              scope: punctuation.section.embedded.end.sightly
-              pop: true
 
   sightly:
     - meta_scope: source.sightly.embedded.html meta.block.sightly
     - clear_scopes: true
+    - match: '}'
+      scope: punctuation.section.embedded.end.sightly
+      pop: true
     - include: expression
     - match: '@'
       scope: keyword.operator.optionList.sightly
       set: optionList
 
   optionList:
-    - meta_scope: source.sightly.embedded.html meta.block.sightly meta.optionList.sightly
+    - meta_scope: source.sightly.embedded.html meta.block.sightly meta.optionList.sightly meta.function-call.sightly
     - clear_scopes: true
-    - include: expression
+    - include: sightly
     - include: option
   
   option:
     - match: ([a-zA-Z_]+[a-zA-Z0-9_-]*)
                 \s?(=)\s?
-                  (.*)\s?
+                  (\w*)\s?
                     (?=,|}) # TODO: add 3rd capture for the optionValues
       captures:
         1: meta.option.key.sightly
@@ -64,6 +63,7 @@ contexts:
     - include: booleans
     - include: operators
     - include: numbers
+    - include: punctuation
 
   operators:
     - match: '&&|!|\|\|'
@@ -71,6 +71,19 @@ contexts:
     - match: '='
       scope: keyword.operator.assignment.sightly
     # TODO: add ternary operators
+    
+  punctuation:
+    - match: \(
+      scope: punctuation.section.group.begin.sightly
+      push:
+        - meta_scope: meta.section.group.sightly
+        - match: \)
+          scope: punctuation.section.group.end.sightly
+          pop: true
+        - include: sightly
+    - match: \)
+      scope: invalid.punctuation.group.sightly
+
 
   strings:
     - include: string-quoted-single
