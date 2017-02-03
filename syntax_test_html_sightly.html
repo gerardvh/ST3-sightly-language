@@ -9,7 +9,7 @@
 //                              ^^ keyword.operator.logical.sightly
 
 <template data-sly-template.historical="${ @ requirement = 'This string\t \u93af' }">
-//                                                                          ^^^^^^ constant.character.escape.unicode.sightly 
+//                                                                        ^^^^^^ constant.character.escape.unicode.sightly 
   <sly data-sly-use.h="dynamic/historical.html" 
       data-sly-call="${ h.temp @ historicalRequirement = requirement, hello = true }"/>
 </template>
