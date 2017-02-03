@@ -8,7 +8,7 @@
 <div class="${ properties.title || properties.otherTitle }">
 //                              ^^ keyword.operator.logical.sightly
 
-<template data-sly-template.historical="${ @ requirement = 'This = string\t \u93af' }">
+<template data-sly-template.historical="${ @ requirement = 'This string\t \u93af' }">
 //                                                                          ^^^^^^ constant.character.escape.unicode.sightly 
   <sly data-sly-use.h="dynamic/historical.html" 
       data-sly-call="${ h.temp @ historicalRequirement = requirement, hello = true }"/>
@@ -19,3 +19,126 @@
 <script>var bar='${someText @ context="scriptString \n \u93af"}';</script>
 //                                                     ^^^^^^  constant.character.escape.unicode.sightly
 
+<script>var bar='${someText @ context=true}';</script>
+
+<!--/* Identifiers: */-->
+${myVar}
+
+<!--/* Accesses a member of an object: */-->
+${myObject.key}
+${myObject['key']}
+${myObject[keyVar]}
+
+<!--/* Accesses an index of an array: */-->
+${myArray[1]}
+${myArray[indexVar]}
+
+<!--/* Literals: */-->
+${true}
+${42}
+${'string'}
+${"string"}
+${[1, 2, 3, true, 'string']}
+
+
+<!--/* Scripts */-->
+<a href="#whatever" onclick="${myFunctionName @ context='scriptToken'}()">Link</a>
+<script>var ${myVarName @ context="scriptToken"}="Bar";</script>
+<script>var bar='${someText @ context="scriptString"}';</script>
+
+<!--/* Styles */-->
+<a href="#whatever" style="color: ${colorName @ context='styleToken'};">Link</a>
+<style>
+    a.${className @ context="styleToken"} {
+        font-family: '${fontFamily @ context="styleString"}', sans-serif;
+        color: #${colorHashValue @ context="styleToken"};
+        margin-${side @ context="styleToken"}: 1em; /* E.g. for bi-directional text */
+    }
+</style>
+
+
+${varOne && !(varTwo || varThree)} <!--/* 1. Grouping parenthesis */-->
+${!myVar}                          <!--/* 2. Logical NOT */-->
+${varOne && varTwo}                <!--/* 3. Logical AND */-->
+${varOne || varTwo}                <!--/* 4. Logical OR */-->
+${varChoice ? varOne : varTwo}     <!--/* 5. Conditional (ternary) (note that the ? and : separators must be surrounded by a space) */-->
+
+${properties.pageTitle || properties.jcr:title || resource.name}
+
+<!--/* An option without a value: */-->
+${myVar @ optName}
+
+<!--/* Values can be in the form of identifiers or of literals: */-->
+${myVar @ optName=myVar}
+${myVar @ optName=true}
+${myVar @ optName=42}
+${myVar @ optName='string'}
+${myVar @ optName="string"}
+${myVar @ optName=[myVar, 'string']}
+
+<!--/* Values can also use operators: */-->
+${myVar @ optName=(varOne && varTwo) || !varThree}
+
+<!--/* Multiple options: */-->
+${myVar @ optOne, optTwo=myVar, optThree='string', optFour=[myVar, 'string']}
+
+<!--/* No spaces: */-->
+${myVar@argOne,argTwo=myVar,argThree='string',argFour=[myVar,'string']}
+
+<!--/* Spaces everywhere: */-->
+${ myVar @ argOne , argTwo = myVar , argThree = 'string' , argFour = [ myVar , 'string' ] }
+
+<!--/* This is the recommended spacing style though: */-->
+${myVar @ argOne, argTwo=myVar, argThree='string', argFour=[myVar, 'string']}
+
+<tag data-sly-BLOCK="${ @ 
+    paramOne, paramTwo=myVar, paramThree='string', paramFour=[myVar, 'stringing']}">element content</tag>
+
+${properties.jcr:title @ context='html'}
+
+<!--/* Numbered parameters for injecting variables: */-->
+${'Asset {0}' @ format=properties.assetName}
+${'Asset {0}' @ format=[properties.assetName]}
+${'Asset {0} out of {1}' @ format=[properties.current, properties.total]}
+${'Asset {0} out of {1}' @ format=[properties.current, properties.total], i18n, locale='de'}
+
+
+${'yyyy-MM-dd HH:mm:ss.SSSXXX' @ format=obj.date, timezone='UTC'}
+${'yyyy-MM-dd HH:mm:ss.SSSXXX' @ format=obj.date, timezone='GMT+02:00'}
+${'yyyy-MM-dd HH:mm:ss.SSS(z)' @ format=obj.date, timezone='GMT+02:00'}
+${'yyyy-MM-dd HH:mm:ss.SSSZ' @ format=obj.date, timezone='GMT+02:00'}
+${'dd MMMM \'\'yy hh:mm a; \'day in year\': D; \'week in year\': w' @ format=obj.date, timezone='UTC'}
+${'EEEE, d MMM y' @ format=obj.date, timezone='UTC', locale='de'}
+${'EEEE, d MMM y' @ format=obj.date, timezone='UTC', locale='en_US', i18n} 
+<!--/* TODO: add `i18n` as a keyword or something */-->
+
+
+${'#,###.00' @ format=1000}
+${'#.###;-#.###' @ format=obj.number}
+${'#.00;(#.00)' @ format=obj.number}
+${'#.000E00' @ format=obj.number}
+${'#%' @ format=obj.number}
+${ 'curr #,###.##' @ format=1000.14, locale='de_CH', i18n}
+
+${['one', 'two'] @ join='; '} <!--/* outputs: one; two */-->
+
+${'http://example.com/path/page.html' @ prependPath='foo'}
+<!-- outputs: http://example.com/foo/path/page.html -->
+
+${'path/page.selector.html/suffix?key=value#fragment' @ appendPath='appended'}
+
+<tag data-sly-BLOCK></tag>                                 <!--/* A block is simply consists in a data-sly attribute set on an element. */-->
+<tag data-sly-BLOCK/>                                      <!--/* Empty elements (without a closing tag) should have the trailing slash. */-->
+<tag data-sly-BLOCK="string value"/>                       <!--/* A block statement usually has a value passed, but not necessarily. */-->
+<tag data-sly-BLOCK="${expression}"/>                      <!--/* The passed value can be an expression as well. */-->
+<tag data-sly-BLOCK="${@ myArg='foo'}"/>                   <!--/* Or a parametric expression with arguments. */-->
+<tag data-sly-BLOCKONE="value" data-sly-BLOCKTWO="value"/> <!--/* Several block statements can be set on a same element. */-->
+
+<!--/* Example of statements that use the identifier to set a variable with their result: */-->
+<div data-sly-use.navigation="MyNavigation">${navigation.title}</div>
+<div data-sly-test.isEditMode="${wcmmode.edit}">${isEditMode}</div>
+<div data-sly-list.child="${currentPage.listChildren}">${child.properties.jcr:title}</div>
+<div data-sly-template.nav>Hello World</div>
+
+<!--/* The attribute statement uses the identifier to know to which attribute it should apply it's value: */-->
+<div data-sly-attribute.title="${properties.jcr:title}"></div>
