@@ -12,6 +12,9 @@ variables:
   identifier: '[A-Za-z_][A-Za-z_0-9:]*'
   validField: '[A-Za-z_0-9:]*'
   hexDigit: '[a-fA-F0-9]'
+  stringRegex: ("|')((?:\\\1|(?:(?!\1).))*)\1
+  atomRegex: (?:("|')((?:\\\1|(?:(?!\1).))*)\1)|{{identifier}}
+  exponentRegex: '[eE][+-]?[0-9]+'
 
 contexts:
   main:
@@ -34,43 +37,73 @@ contexts:
   sightly-expression:
     - meta_scope: source.sightly.embedded.html meta.block.sightly
     - clear_scopes: true
-    - match: '}'
-      scope: punctuation.section.embedded.end.sightly
-      pop: true
+    - include: sightly-expression-end
+    - include: expression-node
     - match: '@'
       scope: keyword.operator.optionList.sightly
       set: option-list
 
-  option-list:
-    - meta_scope: todo
+  sightly-expression-end:
     - match: '}'
       scope: punctuation.section.embedded.end.sightly
       pop: true
 
+  option-list:
+    - meta_scope: todo
+    - clear_scopes: true
+    - include: sightly-expression-end
+    - include: option
+    - include: option-values
+
   option:
     - match: '{{identifier}}'
-      scope: todo meta.option.id.sightly
+      scope: meta.option.identifier.sightly
+    - match: ','
+      scope: punctuation.separator.sightly
+    - match: \=
+      scope: keyword.operator.assignment.sightly
+      # push:
+      #   - meta_scope: meta.option-values.sightly
+      #   - include: sightly-expression-end
     # Optional '=' with a non-optional `option-values` following
   
   option-values:
-    - meta_scope: todo
+    - meta_scope: meta.option-values.sightly
+    - match: ','
+      scope: punctuation.separator.sightly
+      pop: true
+    - include: expression-node
+    - include: value-list
     # includes an `expression-node`  or '[' `value-list` ']'
   
   value-list:
-    - meta_scope: todo
+    - match: \[
+      push:
+        - meta_scope: meta.value-list.sightly
+        - match: \]
+          pop: true
+        - include: expression-node
     # `expression-node` with optional ',' and more `expression-nodes`
   
   expression-node:
     - meta_scope: todo
+    - include: atom
+    - include: property-access
+    - include: operators
+    - include: term
+    # - match: 
     # binaryOp , '?' , binaryOp , ws , ' : ' , ws , binaryOp | binaryOp
   
   binary-op:
     - meta_scope: todo
     # factor { , operator , factor}
   
-  operator:
-    - meta_scope: todo
-    # '&&' | '||'
+  operators:
+    - match: '&&|\|\||!'
+      scope: keyword.operator.logical.sightly
+    - match: '[=!<>]='
+      scope: keyword.operator.comparison.sightly
+      # Possible TODO: add ';' ',' '%' etc. for formatting operators.
 
   factor:
     - meta_scope: todo
@@ -78,57 +111,98 @@ contexts:
   
   term:
     - meta_scope: todo
+    - match: '\('
+      scope: punctuation.group.begin.sightly
+      push:
+        - meta_scope: meta.expression-group.sightly
+        - match: \)
+          scope: punctuation.group.end.sightly
+          pop: true
+        - include: expression-node
+
     # `property-access` | '(', `expression-node`, ')'
     
   property-access:
-    - meta_scope: todo
+    - match: '(\.)({{validField}})'
+      captures:
+        1: keyword.accessor.sightly
+        2: variable.other.member.sightly todo
     # `atom` { '.' `field` }
-
-  field:
-    - meta_scope: todo
-    # `string` | `identifier`
   
   atom:
-    - meta_scope: todo
+    - include: strings
+    - include: numbers
+    - include: bool
+    - match: '{{identifier}}'
+      scope: todo meta.identifier.sightly
     # `string` | `identifier` | `int` | `float` | `bool`
   
   bool:
-    - meta_scope: todo
+    - match: 'true|false'
+      scope: constant.language.boolean.sightly
     # 'true' | 'false'
 
   numbers:
-    - meta_scope: todo
+    - match: \b\d*\.?\d+({{exponentRegex}})?\b
+      scope: constant.numeric.float.sightly
+    - match: \b\d\b
+      scope: constant.numeric.integer.sightly
     # int:
     ## ('1'..'9'){'0'..'9'} | '0'
     # float:
-    ## ('0'..'9'){'0'..'9'} '.' {'0'..'9'} [exponent]
-    ## | '.' ('0'..'9'){'0'..'9'} [exponent]
+    ## ('0'..'9'){'0'..'9'} '.' {'0'..'9'} [exponent] : 12.45 or 12.89e-9
+    ## | '.' ('0'..'9'){'0'..'9'} [exponent] : .12231 or .12E+9 
     ## | ('0'..'9'){'0'..'9'} exponent
 
-  exponent:
-    - meta_scope: todo 
-    # ('e'|'E') ['+'|'-'] ('0'..'9'){'0'..'9'}
+  strings:
+    - include: string-quoted-single
+    - include: string-quoted-double
+
+  string-quoted-single:
+    - match: "'"
+      scope: punctuation.definition.string.begin.sightly
+      push:
+        - meta_scope: string.quoted.single.sightly
+        - match: "'"
+          scope: punctuation.definition.string.end.sightly
+          pop: true
+        - include: escape-sequences
+
+  string-quoted-double:
+    - match: '"'
+      scope: punctuation.definition.string.begin.sightly
+      push:
+        - meta_scope: string.quoted.double.sightly
+        - match: '"'
+          scope: punctuation.definition.string.end.sightly
+          pop: true
+        - include: escape-sequences
 
   escape-sequence:
-    - meta_scope: todo 
-    # '\\' ('b'|'t'|'n'|'f'|'r'|'\"'|'\''|'\\')
-       # | unicodeEsc
-       # | octalEsc
+    - match: \\[abtnfr\"\'\\]
+      scope: constant.character.escape.sightly
+    - include: unicode-escape
+    - include: octal-escape
   
   unicode-escape:
-    - meta_scope: todo
-    # '\\' 'u' hexDigit hexDigit hexDigit hexDigit
+    - match: '\\u[a-fA-F0-9]{4}'
+      scope: constant.character.escape.unicode.sightly
   
   octal-escape:
-    - meta_scope: todo
-    # '\\' ('0'..'3') ('0'..'7') ('0'..'7')
-         # | '\\' ('0'..'7') ('0'..'7')
-         # | '\\' ('0'..'7')
+    - match: \\[0-3][0-7][0-7]
+      scope: constant.character.escape.octal.sightly
+    - match: \\[0-7][0-7]?
+      scope: constant.character.escape.octal.sightly
 
 
 
 
 
+
+# ########################################################################
+    # 
+    # 
+    # 
   sightly:
     - meta_scope: source.sightly.embedded.html meta.block.sightly
     - clear_scopes: true
@@ -164,12 +238,12 @@ contexts:
     - include: numbers
     - include: punctuation
 
-  operators:
-    - match: '&&|!|\|\|'
-      scope: keyword.operator.logical.sightly
-    - match: '='
-      scope: keyword.operator.assignment.sightly
-    # TODO: add ternary operators
+  # operators:
+  #   - match: '&&|!|\|\|'
+  #     scope: keyword.operator.logical.sightly
+  #   - match: '='
+  #     scope: keyword.operator.assignment.sightly
+  #   # TODO: add ternary operators
     
   punctuation:
     - match: \(
@@ -182,37 +256,6 @@ contexts:
         - include: sightly
     - match: \)
       scope: invalid.punctuation.group.sightly
-
-
-  strings:
-    - include: string-quoted-single
-    - include: string-quoted-double
-
-  string-quoted-single:
-    - match: "'"
-      scope: punctuation.definition.string.begin.sightly
-      push:
-        - meta_scope: string.quoted.single.sightly
-        - match: "'"
-          scope: punctuation.definition.string.end.sightly
-          pop: true
-        - include: escapeSequences
-
-  string-quoted-double:
-    - match: '"'
-      scope: punctuation.definition.string.begin.sightly
-      push:
-        - meta_scope: string.quoted.double.sightly
-        - match: '"'
-          scope: punctuation.definition.string.end.sightly
-          pop: true
-        - include: escapeSequences
-
-  escapeSequences:
-    - match: '\\u[a-fA-F0-9]{4}'
-      scope: constant.character.escape.unicode.sightly
-    - match: \\.
-      scope: constant.character.escape.sightly
 
   propertyAccess:
     - match: '({{identifier}})(\.)({{validField}})'
