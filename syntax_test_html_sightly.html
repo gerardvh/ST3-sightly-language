@@ -27,6 +27,7 @@ ${myVar}
 
 <!--/* Accesses a member of an object: */-->
 ${myObject.key}
+${myObject.'key'}
 ${myObject['key']}
 ${myObject[keyVar]}
 
@@ -46,11 +47,16 @@ ${"string"}
 ${[1, 2, 3, true, 'string']}
 // ^    constant.numeric.sightly
 
+${12.489e+2}
+// ^^^^^^^  constant.numeric.float.sightly
+${21e+2}
+
+
 
 <!--/* Scripts */-->
-<a href="#whatever" onclick="${myFunctionName @ context='scriptToken'}()">Link</a>
+<a href="#whatever" onclick="${myFunctionName3 @ context='scriptToken'}()">Link</a>
 <script>var ${myVarName @ context="scriptToken"}="Bar";</script>
-<script>var bar='${someText @ context="scriptString"}';</script>
+<script>var bar='${someText @ context="scriptString2", other = [thing1, thing2]}';</script>
 
 <!--/* Styles */-->
 <a href="#whatever" style="color: ${colorName @ context='styleToken'};">Link</a>
@@ -96,7 +102,7 @@ ${myVar@argOne,argTwo=myVar,argThree='string',argFour=[myVar,'string']}
 ${ myVar @ argOne , argTwo = myVar , argThree = 'string' , argFour = [ myVar , 'string' ] }
 
 <!--/* This is the recommended spacing style though: */-->
-${myVar @ argOne, argTwo=myVar, argThree='string', argFour=[myVar, 'string']}
+${myVar @ argOne, argTwo=myVar.something, argThree='string', argFour=[myVar, 'string']}
 
 <tag data-sly-BLOCK="${ @ 
     paramOne, paramTwo=myVar, paramThree='string', paramFour=[myVar, 'stringing']}">element content</tag>

@@ -49,15 +49,18 @@ contexts:
       pop: true
 
   option-list:
-    - meta_scope: todo
+    - meta_scope: meta.function-call.option-list.sightly
     - clear_scopes: true
     - include: sightly-expression-end
     - include: option
     - include: option-values
 
   option:
-    - match: '{{identifier}}'
-      scope: meta.option.identifier.sightly
+    - match: '({{identifier}})\s?(=)\s?({{identifier}})'
+      captures:
+        1: meta.option.identifier.sightly
+        2: keyword.operator.assignment.sightly
+        3: meta.option.value.sightly
     - match: ','
       scope: punctuation.separator.sightly
     - match: \=
@@ -126,7 +129,7 @@ contexts:
     - match: '(\.)({{validField}})'
       captures:
         1: keyword.accessor.sightly
-        2: variable.other.member.sightly todo
+        2: variable.other.member.sightly variable.parameter.sightly
     # `atom` { '.' `field` }
   
   atom:
@@ -166,7 +169,6 @@ contexts:
         - match: "'"
           scope: punctuation.definition.string.end.sightly
           pop: true
-        - include: escape-sequences
 
   string-quoted-double:
     - match: '"'
