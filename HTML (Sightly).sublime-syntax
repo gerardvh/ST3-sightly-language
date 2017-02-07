@@ -169,6 +169,7 @@ contexts:
         - match: "'"
           scope: punctuation.definition.string.end.sightly
           pop: true
+        - include: escape-sequences
 
   string-quoted-double:
     - match: '"'
@@ -180,12 +181,15 @@ contexts:
           pop: true
         - include: escape-sequences
 
-  escape-sequence:
-    - match: \\[abtnfr\"\'\\]
-      scope: constant.character.escape.sightly
+  escape-sequences:
+    - include: character-escape
     - include: unicode-escape
     - include: octal-escape
   
+  character-escape:
+    - match: \\[abtnfr\"\\']
+      scope: constant.character.escape.sightly
+
   unicode-escape:
     - match: '\\u[a-fA-F0-9]{4}'
       scope: constant.character.escape.unicode.sightly
