@@ -34,6 +34,7 @@ contexts:
             1: keyword.operator.embedded.sightly
           push: sightly-expression
 
+  # ------------- Basic Language details ---------------- #
   sightly-expression:
     - meta_scope: source.sightly.embedded.html meta.block.sightly
     - clear_scopes: true
@@ -207,7 +208,46 @@ contexts:
     - match: \\[0-7][0-7]?
       scope: constant.character.escape.octal.sightly
 
+  # ------------------ Built in expression options ------------------ #
+  # TODO: Display context
+  # 
+  # TODO: Format
+  ## - todo: Strings
+  ## - todo: Dates
+  ## - todo: Numbers
+  # 
+  # TODO: i18n
+  # 
+  # TODO: Array Join
+  # 
+  # TODO: URI Manipulation
+  
 
+
+  # ----------------- TODO: Block Statements ----------------------- #
+  # TODO: Use
+  # 
+  # TODO: Text
+  # 
+  # TODO: Attribute
+  # 
+  # TODO: Element
+  # 
+  # TODO: Test
+  # 
+  # TODO: List
+  # 
+  # TODO: Repeat
+  # 
+  # TODO: Include
+  # 
+  # TODO: Resource
+  # 
+  # TODO: Template
+  # 
+  # TODO: Call (Template)
+  # 
+  # TODO: Unwrap
 
 
 
