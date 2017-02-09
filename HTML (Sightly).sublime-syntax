@@ -37,50 +37,48 @@ contexts:
   sightly-expression:
     - meta_scope: source.sightly.embedded.html meta.block.sightly
     - clear_scopes: true
-    - include: sightly-expression-end
+    - match: '}'
+      scope: punctuation.section.embedded.end.sightly
+      pop: true
     - include: expression-node
     - match: '@'
       scope: keyword.operator.optionList.sightly
-      set: option-list
+      push: option-list
 
-  sightly-expression-end:
-    - match: '}'
+  sightly-expression-before-end:
+    - match: '(?=})'
       scope: punctuation.section.embedded.end.sightly
       pop: true
 
   option-list:
-    - meta_scope: meta.function-call.option-list.sightly
+    - meta_scope: meta.option-list.sightly
     - clear_scopes: true
-    - include: sightly-expression-end
+    - include: sightly-expression-before-end
     - include: option
-    - include: option-values
 
   option:
-    - match: '({{identifier}})\s?(=)\s?({{identifier}})'
+    - match: '({{identifier}})\s?(?=\=)\s?'
       captures:
         1: meta.option.identifier.sightly
-        2: keyword.operator.assignment.sightly
-        3: meta.option.value.sightly
     - match: ','
       scope: punctuation.separator.sightly
     - match: \=
       scope: keyword.operator.assignment.sightly
-      # push:
-      #   - meta_scope: meta.option-values.sightly
-      #   - include: sightly-expression-end
+      push: option-values
     # Optional '=' with a non-optional `option-values` following
   
   option-values:
-    - meta_scope: meta.option-values.sightly
-    - match: ','
+    - meta_scope: meta.function-call.option-values.sightly
+    - match: '(?=,)'
       scope: punctuation.separator.sightly
       pop: true
+    - include: sightly-expression-before-end
     - include: expression-node
     - include: value-list
     # includes an `expression-node`  or '[' `value-list` ']'
   
   value-list:
-    - match: \[
+    - match: \[ # todo: add scope for this punctuation
       push:
         - meta_scope: meta.value-list.sightly
         - match: \]
@@ -94,7 +92,6 @@ contexts:
     - include: property-access
     - include: operators
     - include: term
-    # - match: 
     # binaryOp , '?' , binaryOp , ws , ' : ' , ws , binaryOp | binaryOp
   
   binary-op:
@@ -106,6 +103,10 @@ contexts:
       scope: keyword.operator.logical.sightly
     - match: '[=!<>]='
       scope: keyword.operator.comparison.sightly
+    - match: \s\?\s
+      scope: keyword.operator.ternary.conditional.sightly
+    - match: \s\:\s
+      scope: keyword.operator.ternary.after-conditional.sightly
       # Possible TODO: add ';' ',' '%' etc. for formatting operators.
 
   factor:
@@ -122,7 +123,6 @@ contexts:
           scope: punctuation.group.end.sightly
           pop: true
         - include: expression-node
-
     # `property-access` | '(', `expression-node`, ')'
     
   property-access:
