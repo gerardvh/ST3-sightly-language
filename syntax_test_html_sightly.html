@@ -87,10 +87,10 @@ ${myVar @ optName=true}
 ${myVar @ optName=42}
 ${myVar @ optName='string'}
 ${myVar @ optName="string"}
-${myVar @ optName=[myVar, 'string']}
+${myVar @ optName=[myVar, 'string'], format = date, timezone = 'UTC', type = 'date'}
 
 <!--/* Values can also use operators: */-->
-${myVar @ optName=(varOne && varTwo) || !varThree}
+${myVar @ optName=(varOne && varTwo) || !varThree, format=, type='number'}
 
 <!--/* Multiple options: */-->
 ${myVar @ optOne, optTwo=myVar, optThree='string', optFour=[myVar, 'string']}
@@ -107,7 +107,7 @@ ${myVar @ argOne, argTwo=myVar.something, argThree='string', argFour=[myVar, 'st
 <tag data-sly-BLOCK="${ @ 
     paramOne, paramTwo=myVar, paramThree='string', paramFour=[myVar, 'stringing']}">element content</tag>
 
-${properties.jcr:title @ context='html'}
+${properties.jcr:title @ context='html', i18n, locale='en_US', hint='Translation Hint'}
 
 <!--/* Numbered parameters for injecting variables: */-->
 ${'Asset {0}' @ format=properties.assetName}
@@ -123,6 +123,7 @@ ${'yyyy-MM-dd HH:mm:ss.SSSZ' @ format=obj.date, timezone='GMT+02:00'}
 ${'dd MMMM \'\'yy hh:mm a; \'day in year\': D; \'week in year\': w' @ format=obj.date, timezone='UTC'}
 ${'EEEE, d MMM y' @ format=obj.date, timezone='UTC', locale='de'}
 ${'EEEE, d MMM y' @ format=obj.date, timezone='UTC', locale='en_US', i18n} 
+${'EEEE, d MMM y' @ format=1000, i18n, locale='en_US'}
 <!--/* TODO: add `i18n` as a keyword or something */-->
 
 
@@ -130,21 +131,21 @@ ${'#,###.00' @ format=1000}
 ${'#.###;-#.###' @ format=obj.number}
 ${'#.00;(#.00)' @ format=obj.number}
 ${'#.000E00' @ format=obj.number}
-${'#%' @ format=obj.number}
+${'#%' @ format=obj.number, format=2910, }
 ${ 'curr #,###.##' @ format=1000.14, locale='de_CH', i18n}
 
-${['one', 'two'] @ join='; '} <!--/* outputs: one; two */-->
+${['one', 'two'] @ join='; ', context='text' } <!--/* outputs: one; two */-->
 
 ${'http://example.com/path/page.html' @ prependPath='foo'}
 <!-- outputs: http://example.com/foo/path/page.html -->
 
-${'path/page.selector.html/suffix?key=value#fragment' @ appendPath='appended'}
+${'path/page.selector.html/suffix?key=value#fragment' @ appendPath='appended', context='text'}
 
 <tag data-sly-BLOCK></tag>                                 <!--/* A block is simply consists in a data-sly attribute set on an element. */-->
 <tag data-sly-BLOCK/>                                      <!--/* Empty elements (without a closing tag) should have the trailing slash. */-->
 <tag data-sly-BLOCK="string value"/>                       <!--/* A block statement usually has a value passed, but not necessarily. */-->
 <tag data-sly-BLOCK="${expression}"/>                      <!--/* The passed value can be an expression as well. */-->
-<tag data-sly-BLOCK="${@ myArg='foo'}"/>                   <!--/* Or a parametric expression with arguments. */-->
+<tag data-sly-BLOCK="${  @ myArg='foo'}"/>                   <!--/* Or a parametric expression with arguments. */-->
 <tag data-sly-BLOCKONE="value" data-sly-BLOCKTWO="value"/> <!--/* Several block statements can be set on a same element. */-->
 
 <!--/* Example of statements that use the identifier to set a variable with their result: */-->
@@ -155,3 +156,22 @@ ${'path/page.selector.html/suffix?key=value#fragment' @ appendPath='appended'}
 
 <!--/* The attribute statement uses the identifier to know to which attribute it should apply it's value: */-->
 <div data-sly-attribute.title="${properties.jcr:title}"></div>
+
+
+${properties.jcr:title @ context='html'}          <!--/* Use this in case you want to output HTML - Removes markup that may contain XSS risks */-->
+${properties.jcr:title @ context='text'}          <!--/* Use this for simple HTML content - Encodes all HTML */-->
+${properties.jcr:title @ context='elementName'}   <!--/* Allows only element names that are white-listed, outputs 'div' otherwise */-->
+${properties.jcr:title @ context='attributeName'} <!--/* Outputs nothing if the value doesn't correspond to the HTML attribute name syntax - doesn't allow 'style' and 'on*' attributes */-->
+${properties.jcr:title @ context='attribute'}     <!--/* Applies HTML attribute escaping */-->
+${properties.jcr:title @ context='uri'}           <!--/* Outputs nothing if the value contains XSS risks */-->
+${properties.jcr:title @ context='scriptToken'}   <!--/* Outputs nothing if the value doesn't correspond to the JavaScript token syntax */-->
+${properties.jcr:title @ context='scriptString'}  <!--/* Applies JavaScript string escaping */-->
+${properties.jcr:title @ context='scriptComment'} <!--/* Context for Javascript block comments. Outputs nothing if value is trying to break out of the comment context */-->
+${properties.jcr:title @ context='scriptRegExp'}  <!--/* Applies JavaScript regular expression escaping */-->
+${properties.jcr:title @ context='styleToken'}    <!--/* Outputs nothing if the value doesn't correspond to the CSS token syntax */-->
+${properties.jcr:title @ context='styleString'}   <!--/* Applies CSS string escaping */-->
+${properties.jcr:title @ context='styleComment'}  <!--/* Context for CSS comments. Outputs nothing if value is trying to break out of the comment context */-->
+${properties.jcr:title @ context='comment'}       <!--/* Applies HTML comment escaping */-->
+${properties.jcr:title @ context='number'}        <!--/* Outputs zero if the value is not a number */-->
+${properties.jcr:title @ context='unsafe'}        <!--/* Use this at your own risk, this disables XSS protection completely */-->
+${properties.jcr:title @ context='text'}        <!--/* Use this at your own risk, this disables XSS protection completely */-->
