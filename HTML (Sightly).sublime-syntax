@@ -63,6 +63,7 @@ contexts:
         1: meta.option.identifier.sightly variable.function.option.sightly
     - match: ','
       scope: punctuation.separator.sightly
+    - include: localization
     - match: \=
       scope: keyword.operator.assignment.sightly
       push: option-values
@@ -102,7 +103,6 @@ contexts:
       scope: keyword.operator.ternary.conditional.sightly
     - match: \s\:\s
       scope: keyword.operator.ternary.after-conditional.sightly
-    
       # Possible TODO: add ';' ',' '%' etc. for formatting operators.
   
   term:
@@ -217,6 +217,10 @@ contexts:
   # 
   # i18n
   # 
+  localization:
+    - match: 'i18n'
+      scope: constant.language.localization.sightly
+
   # Array Join
   # 
   # TODO: URI Manipulation
@@ -224,8 +228,14 @@ contexts:
 
 
   # ----------------- TODO: Block Statements ----------------------- #
+  block-statements:
+    - include: use-block
+  # 
   # TODO: Use
   # 
+  use-block:
+    - match: 'data-sly-use'
+      scope: meta.use-block.sightly.html
   # TODO: Text
   # 
   # TODO: Attribute
