@@ -1,0 +1,5 @@
+<snippet>
+    <content><![CDATA[i18n${2:, locale='${1:en_US}'}${4:, hint='${3:Translation Hint}'}]]></content>
+    <tabTrigger>i18n</tabTrigger>
+    <scope>meta.option-list.sightly</scope>
+</snippet>
