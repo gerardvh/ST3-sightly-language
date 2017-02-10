@@ -1,5 +1,5 @@
 <snippet>
-    <content><![CDATA[format=$1${3:, type='${2:number}'}]]></content>
+    <content><![CDATA[format=${1:thingToFormat}${3:, type='${2:number}'}]]></content>
     <tabTrigger>format</tabTrigger>
     <scope>meta.option-list.sightly</scope>
 </snippet>

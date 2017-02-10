@@ -29,6 +29,7 @@ class SightlyCompletions(sublime_plugin.EventListener):
         # print('ch:', ch)
 
         if in_options:
+            # TODO: check if we need to add a space after a `@` or a `,`
             return (self.default_options(), sublime.INHIBIT_WORD_COMPLETIONS)
         else:
             return []
