@@ -1,0 +1,5 @@
+<snippet>
+    <content><![CDATA[join='$1']]></content>
+    <tabTrigger>join</tabTrigger>
+    <scope>meta.option-list.sightly</scope>
+</snippet>

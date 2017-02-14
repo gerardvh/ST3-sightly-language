@@ -36,6 +36,7 @@ contexts:
           scope: punctuation.definition.comment.block.end.sightly
           pop: true
 
+  # ------------- Basic Language details ---------------- #
   sightly-expression:
     - match: '(\$){'
       scope: punctuation.section.embedded.begin.sightly
@@ -107,7 +108,7 @@ contexts:
       pop: true
 
   option-list:
-    - meta_scope: meta.option-list.sightly
+    - meta_scope: source.sightly.embedded.html meta.option-list.sightly 
     - clear_scopes: true
     - include: sightly-expression-before-end
     - include: option
@@ -118,6 +119,7 @@ contexts:
         1: meta.option.identifier.sightly variable.function.option.sightly
     - match: ','
       scope: punctuation.separator.sightly
+    - include: localization
     - match: \=
       scope: keyword.operator.assignment.sightly
       push: option-values
@@ -157,11 +159,9 @@ contexts:
       scope: keyword.operator.ternary.conditional.sightly
     - match: \s\:\s
       scope: keyword.operator.ternary.after-conditional.sightly
-    
       # Possible TODO: add ';' ',' '%' etc. for formatting operators.
   
   term:
-    - meta_scope: todo
     - match: '\('
       scope: punctuation.group.begin.sightly
       push:
@@ -263,17 +263,54 @@ contexts:
     - match: \\[0-7][0-7]?
       scope: constant.character.escape.octal.sightly
 
+  # ------------------ Built in expression options ------------------ #
+  # Display context (snippet)
+  # 
+  # Format
+  ## - Strings (snippet)
+  ## - Dates (snippet)
+  ## - Numbers (snippet)
+  # 
+  # i18n
+  # 
+  localization:
+    - match: 'i18n'
+      scope: constant.language.localization.sightly
 
-#############################  Data-Sly-Blocks ###########################
-
-  sly-use:
-    - match: '(data-sly-use)(\.?)({{identifier}}?)'
-      captures:
-        1: todo meta.data-sly-block.sightly
-        2: punctuation.accessor.sightly todo
-        3: todo meta.name.sightly 
-
-
+  # Array Join
+  # 
+  # TODO: URI Manipulation
+  
+  # ----------------- TODO: Block Statements ----------------------- #
+  block-statements:
+    - include: use-block
+  # 
+  # TODO: Use
+  # 
+  use-block:
+    - match: 'data-sly-use'
+      scope: meta.use-block.sightly.html
+  # TODO: Text
+  # 
+  # TODO: Attribute
+  # 
+  # TODO: Element
+  # 
+  # TODO: Test
+  # 
+  # TODO: List
+  # 
+  # TODO: Repeat
+  # 
+  # TODO: Include
+  # 
+  # TODO: Resource
+  # 
+  # TODO: Template
+  # 
+  # TODO: Call (Template)
+  # 
+  # TODO: Unwrap
 
 # ########################################################################
     # 

@@ -1,0 +1,5 @@
+<snippet>
+    <content><![CDATA[format=${1:date}${3:, timezone='${2:UTC}'}, type='date']]></content>
+    <tabTrigger>formatdate</tabTrigger>
+    <scope>meta.option-list.sightly</scope>
+</snippet>
