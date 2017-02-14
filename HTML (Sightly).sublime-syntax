@@ -15,6 +15,7 @@ variables:
   stringRegex: ("|')((?:\\\1|(?:(?!\1).))*)\1
   atomRegex: (?:("|')((?:\\\1|(?:(?!\1).))*)\1)|{{identifier}}
   exponentRegex: '[eE][+-]?[0-9]+'
+  slyBlocks: (use|text|attribute|element|test|list|repeat|include|resource|template|call|unwrap)
 
 contexts:
   main:
@@ -22,28 +23,83 @@ contexts:
     - match: ''
       push: 'scope:text.html.basic'
       with_prototype:
-        - match: '<!--/\*'
-          scope: punctuation.definition.comment.sightly
-          push:
-            - meta_scope: comment.block.sightly
-            - match: '\*/-->'
-              pop: true
-        - match: '(\$){'
-          scope: punctuation.section.embedded.begin.sightly
-          captures:
-            1: keyword.operator.embedded.sightly
-          push: sightly-expression
+        - include: sightly-comment
+        - include: sightly-expression
+        - include: sightly-data-blocks
+
+  sightly-comment:
+    - match: '<!--/\*'
+      scope: punctuation.definition.comment.block.begin.sightly
+      push:
+        - meta_content_scope: comment.block.sightly
+        - match: '\*/-->'
+          scope: punctuation.definition.comment.block.end.sightly
+          pop: true
 
   sightly-expression:
-    - meta_scope: source.sightly.embedded.html meta.block.sightly
-    - clear_scopes: true
-    - match: '}'
-      scope: punctuation.section.embedded.end.sightly
-      pop: true
-    - include: expression-node
-    - match: '@'
-      scope: keyword.operator.optionList.sightly
-      push: option-list
+    - match: '(\$){'
+      scope: punctuation.section.embedded.begin.sightly
+      captures:
+        1: keyword.operator.embedded.sightly
+      push: 
+      - meta_scope: source.sightly.embedded.html meta.block.sightly
+      - clear_scopes: true
+      - match: '}'
+        scope: punctuation.section.embedded.end.sightly
+        pop: true
+      - include: expression-node
+      - match: '@'
+        scope: keyword.operator.optionList.sightly
+        push: option-list
+
+  sightly-data-blocks:
+    - match: '(?:^|\s+)((?=data-sly-{{slyBlocks}}))'
+      captures:
+        1: meta.attribute-with-value.html.sightly
+        2: entity.other.attribute-name.html.sightly
+      push:
+        - meta_scope: meta.data-sly-block.sightly
+        - match: '(data-sly-{{slyBlocks}})(\.?)({{identifier}})?'
+          captures:
+            1: entity.other.attribute-name.html.sightly support.function.sightly
+            2: support.function.sightly
+            3: keyword.operator.accessor.html.sightly
+            4: entity.name.function.sightly
+        - match: \=
+          scope: punctuation.separator.key-value.html
+        - include: strings-with-sightly-allowed
+        - match: ''
+          pop: true
+  
+  strings-with-sightly-allowed:
+    - match: '"'
+      scope: punctuation.definition.string.begin.html
+      set:
+        - meta_scope: meta.attribute-with-value.html string.quoted.double.html
+        - match: '"'
+          scope: punctuation.definition.string.end.html
+          pop: true
+        - include: attribute-entities
+        - include: sightly-expression
+    - match: "'"
+      scope: punctuation.definition.string.begin.html
+      set:
+        - meta_scope: meta.attribute-with-value.html string.quoted.single.html
+        - match: "'"
+          scope: punctuation.definition.string.end.html
+          pop: true
+        - include: attribute-entities
+        - include: sightly-expression
+
+  entities-common:
+    - match: "(&)([a-zA-Z0-9]+|#[0-9]+|#x[0-9a-fA-F]+)(;)"
+      scope: constant.character.entity.html
+      captures:
+        1: punctuation.definition.entity.html
+        3: punctuation.definition.entity.html
+
+  attribute-entities:
+    - include: entities-common
 
   sightly-expression-before-end:
     - match: '(?=})'
@@ -208,7 +264,14 @@ contexts:
       scope: constant.character.escape.octal.sightly
 
 
+#############################  Data-Sly-Blocks ###########################
 
+  sly-use:
+    - match: '(data-sly-use)(\.?)({{identifier}}?)'
+      captures:
+        1: todo meta.data-sly-block.sightly
+        2: punctuation.accessor.sightly todo
+        3: todo meta.name.sightly 
 
 
 

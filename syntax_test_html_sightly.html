@@ -61,7 +61,7 @@ ${21e+2}
 <!--/* Styles */-->
 <a href="#whatever" style="color: ${colorName @ context='styleToken'};">Link</a>
 <style>
-    a.${className @ context="styleToken"} {
+    a.${className @ context="styleToken"}{
 //                  ^^^^^^^^^^^^^^^^^^^^  meta.optionList.sightly
         font-family: '${fontFamily @ context="styleString"}', sans-serif;
         color: #${colorHashValue @ context="styleToken"};
@@ -145,7 +145,7 @@ ${'path/page.selector.html/suffix?key=value#fragment' @ appendPath='appended'}
 <tag data-sly-BLOCK="string value"/>                       <!--/* A block statement usually has a value passed, but not necessarily. */-->
 <tag data-sly-BLOCK="${expression}"/>                      <!--/* The passed value can be an expression as well. */-->
 <tag data-sly-BLOCK="${@ myArg='foo'}"/>                   <!--/* Or a parametric expression with arguments. */-->
-<tag data-sly-BLOCKONE="value" data-sly-BLOCKTWO="value"/> <!--/* Several block statements can be set on a same element. */-->
+<tag data-sly-test="value" data-sly-use="value"/> <!--/* Several block statements can be set on a same element. */-->
 
 <!--/* Example of statements that use the identifier to set a variable with their result: */-->
 <div data-sly-use.navigation="MyNavigation">${navigation.title}</div>
