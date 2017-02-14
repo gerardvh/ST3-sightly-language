@@ -16,6 +16,7 @@ variables:
   atomRegex: (?:("|')((?:\\\1|(?:(?!\1).))*)\1)|{{identifier}}
   exponentRegex: '[eE][+-]?[0-9]+'
   slyBlocks: (use|text|attribute|element|test|list|repeat|include|resource|template|call|unwrap)
+  ws: (?:\s*)
 
 contexts:
   main:
@@ -27,6 +28,7 @@ contexts:
         - include: sightly-expression
         - include: sightly-data-blocks
 
+  # ------------- Basic Language details ---------------- #
   sightly-comment:
     - match: '<!--/\*'
       scope: punctuation.definition.comment.block.begin.sightly
@@ -36,12 +38,11 @@ contexts:
           scope: punctuation.definition.comment.block.end.sightly
           pop: true
 
-  # ------------- Basic Language details ---------------- #
   sightly-expression:
     - match: '(\$){'
       scope: punctuation.section.embedded.begin.sightly
       captures:
-        1: keyword.operator.embedded.sightly
+        1: punctuation.definition.keyword.sightly keyword.operator.embedded.sightly
       push: 
       - meta_scope: source.sightly.embedded.html meta.block.sightly
       - clear_scopes: true
@@ -50,7 +51,7 @@ contexts:
         pop: true
       - include: expression-node
       - match: '@'
-        scope: keyword.operator.optionList.sightly
+        scope: punctuation.definition.keyword.sightly keyword.operator.optionList.sightly
         push: option-list
 
   sightly-data-blocks:
@@ -101,20 +102,19 @@ contexts:
 
   attribute-entities:
     - include: entities-common
-
+  
   sightly-expression-before-end:
     - match: '(?=})'
-      scope: punctuation.section.embedded.end.sightly
       pop: true
 
   option-list:
-    - meta_scope: source.sightly.embedded.html meta.option-list.sightly 
+    - meta_scope: source.sightly.embedded.html meta.block.sightly meta.option-list.sightly 
     - clear_scopes: true
     - include: sightly-expression-before-end
     - include: option
 
   option:
-    - match: '({{identifier}})\s?(?=\=)\s?'
+    - match: '({{identifier}}){{ws}}(?=\=)'
       captures:
         1: meta.option.identifier.sightly variable.function.option.sightly
     - match: ','
@@ -126,8 +126,8 @@ contexts:
     # Optional '=' with a non-optional `option-values` following
   
   option-values:
-    - match: '(?=,)'
-      scope: punctuation.separator.sightly
+    - meta_scope: meta.option.value.sightly
+    - match: (?=,)
       pop: true
     - include: sightly-expression-before-end
     - include: expression-node
@@ -135,10 +135,12 @@ contexts:
     # includes an `expression-node`  or '[' `value-list` ']'
   
   value-list:
-    - match: \[ # todo: add scope for this punctuation
+    - match: \[
+      scope: punctuation.section.brackets.begin.sightly
       push:
-        - meta_scope: meta.value-list.sightly
+        - meta_scope: meta.brackets.sightly meta.value-list.sightly
         - match: \]
+          scope: punctuation.section.brackets.end.sightly
           pop: true
         - include: expression-node
     # `expression-node` with optional ',' and more `expression-nodes`
@@ -157,7 +159,7 @@ contexts:
       scope: keyword.operator.comparison.sightly
     - match: \s\?\s
       scope: keyword.operator.ternary.conditional.sightly
-    - match: \s\:\s
+    - match: \s\:\s # TODO: make this invalid if there is not a preceding `?`
       scope: keyword.operator.ternary.after-conditional.sightly
       # Possible TODO: add ';' ',' '%' etc. for formatting operators.
   
@@ -203,8 +205,8 @@ contexts:
     # 'true' | 'false'
 
   numbers:
-    - include: integer
     - include: float
+    - include: integer
     # int:
     ## ('1'..'9'){'0'..'9'} | '0'
     # float:
@@ -213,11 +215,13 @@ contexts:
     ## | ('0'..'9'){'0'..'9'} exponent
 
   integer:
-    - match: \b\d\b
+    - match: \b\d+\b
       scope: constant.numeric.integer.sightly
 
   float:
-    - match: \b\d*\.?\d+({{exponentRegex}})?\b
+    - match: \b\d+\.\d+({{exponentRegex}})?\b
+      scope: constant.numeric.float.sightly
+    - match: \b\d+{{exponentRegex}}\b
       scope: constant.numeric.float.sightly
 
   strings:

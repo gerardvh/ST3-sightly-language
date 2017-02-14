@@ -13,8 +13,10 @@
   <sly data-sly-use.h="dynamic/historical.html" 
       data-sly-call="${ h.temp @ historicalRequirement = requirement, hello = true }"/>
 </template>
-<!--/* Here is a comment */-->
-//     ^^^^^^^^^^^^^^^^^ comment.block.sightly
+   <!--/* Here is a comment */-->
+// ^^^^^^ punctuation.definition.comment.block.begin.sightly
+//                          ^^^^^ punctuation.definition.comment.block.end.sightly
+//        ^^^^^^^^^^^^^^^^^ comment.block.sightly
 
 <script>var bar='${someText @ context="scriptString \n \u93af"}';</script>
 //                                                     ^^^^^^  constant.character.escape.unicode.sightly
@@ -39,13 +41,13 @@ ${myArray[indexVar]}
 ${true}
 // ^^  constant.language.boolean.sightly
 ${42}
-//^^ constant.numeric.sightly
+//^^ constant.numeric.integer.sightly
 ${'string'}
 // ^^^^^^ string.quoted.single.sightly
 ${"string"}
 // ^^^^^^ string.quoted.double.sightly
 ${[1, 2, 3, true, 'string']}
-// ^    constant.numeric.sightly
+// ^    constant.numeric.integer.sightly
 
 ${12.489e+2}
 // ^^^^^^^  constant.numeric.float.sightly
@@ -62,7 +64,7 @@ ${21e+2}
 <a href="#whatever" style="color: ${colorName @ context='styleToken'};">Link</a>
 <style>
     a.${className @ context="styleToken"}{
-//                  ^^^^^^^^^^^^^^^^^^^^  meta.optionList.sightly
+//                  ^^^^^^^^^^^^^^^^^^^^  meta.option-list.sightly
         font-family: '${fontFamily @ context="styleString"}', sans-serif;
         color: #${colorHashValue @ context="styleToken"};
         margin-${side @ context="styleToken"}: 1em; /* E.g. for bi-directional text */
@@ -94,12 +96,16 @@ ${myVar @ optName=(varOne && varTwo) || !varThree, format=, type='number'}
 
 <!--/* Multiple options: */-->
 ${myVar @ optOne, optTwo=myVar, optThree='string', optFour=[myVar, 'string']}
+//                                                         ^ punctuation.section.brackets.begin.sightly
+//                                                                         ^ punctuation.section.brackets.end.sightly
+//                                                          ^^^^^^^^^^^^^^^ meta.brackets.sightly meta.value-list.sightly
 
 <!--/* No spaces: */-->
 ${myVar@argOne,argTwo=myVar,argThree='string',argFour=[myVar,'string']}
 
 <!--/* Spaces everywhere: */-->
 ${ myVar @ argOne , argTwo = myVar , argThree = 'string' , argFour = [ myVar , 'string' ] }
+//                ^ punctuation.separator.sightly
 
 <!--/* This is the recommended spacing style though: */-->
 ${myVar @ argOne, argTwo=myVar.something, argThree='string', argFour=[myVar, 'string']}
