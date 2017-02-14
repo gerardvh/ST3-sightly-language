@@ -286,14 +286,9 @@ contexts:
   # TODO: URI Manipulation
   
   # ----------------- TODO: Block Statements ----------------------- #
-  block-statements:
-    - include: use-block
   # 
   # TODO: Use
   # 
-  use-block:
-    - match: 'data-sly-use'
-      scope: meta.use-block.sightly.html
   # TODO: Text
   # 
   # TODO: Attribute
@@ -315,85 +310,3 @@ contexts:
   # TODO: Call (Template)
   # 
   # TODO: Unwrap
-
-# ########################################################################
-    # 
-    # 
-    # 
-  sightly:
-    - meta_scope: source.sightly.embedded.html meta.block.sightly
-    - clear_scopes: true
-    - match: '}'
-      scope: punctuation.section.embedded.end.sightly
-      pop: true
-    - include: expression
-    - match: '@'
-      scope: keyword.operator.optionList.sightly
-      set: optionList
-
-  optionList:
-    - meta_scope: source.sightly.embedded.html meta.block.sightly meta.optionList.sightly meta.function-call.sightly
-    - clear_scopes: true
-    - include: sightly
-    - include: option
-  
-  # option:
-  #   - match: ([a-zA-Z_]+[a-zA-Z0-9_-]*)
-  #               \s?(=)\s?
-  #                 (\w*)\s?
-  #     captures:
-  #       1: meta.option.key.sightly
-  #       2: keyword.operator.assignment.sightly
-  #       3: meta.option.value.sightly
-
-  expression:
-    - include: strings
-    - include: propertyAccess
-    - include: booleans
-    - include: operators
-    - include: numbers
-    - include: punctuation
-
-  # operators:
-  #   - match: '&&|!|\|\|'
-  #     scope: keyword.operator.logical.sightly
-  #   - match: '='
-  #     scope: keyword.operator.assignment.sightly
-    
-  punctuation:
-    - match: \(
-      scope: punctuation.section.group.begin.sightly
-      push:
-        - meta_scope: meta.section.group.sightly
-        - match: \)
-          scope: punctuation.section.group.end.sightly
-          pop: true
-        - include: sightly
-    - match: \)
-      scope: invalid.punctuation.group.sightly
-
-  propertyAccess:
-    - match: '({{identifier}})(\.)({{validField}})'
-      captures:
-        1: variable.other.sightly 
-        2: punctuation.accessor.sightly keyword.operator.navigation.sightly
-        3: variable.other.member.sightly meta.property.object.sightly variable.function.sightly
-
-  booleans:
-    - match: 'true|false'
-      scope: constant.language.boolean.sightly
-
-  # numbers:
-  #   - match: \d
-  #     scope: constant.numeric.sightly
-
-  exprNode:
-    - meta_content_scope: meta.exprNode.sightly
-    # Each part of an expression
-
-  optionValues:
-    - meta_content_scope: meta.optionList.optionValues.sightly
-    # can include an `exprNode` or a `valueList`
-
-  valueList:
-    - meta_content_scope: meta.valueList.sightly
