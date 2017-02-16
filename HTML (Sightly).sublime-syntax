@@ -179,8 +179,10 @@ contexts:
       captures:
         1: keyword.accessor.sightly
         2: variable.other.member.sightly variable.parameter.sightly
-    - match: '{{identifier}}(\[)'
-      scope: punctuation.brackets.member-access.begin.sightly
+    - match: '({{identifier}})(\[)'
+      captures:
+        1: variable.other.identifier.sightly
+        2: punctuation.brackets.member-access.begin.sightly
       push:
         - match: \]
           scope: punctuation.brackets.member-access.end.sightly
