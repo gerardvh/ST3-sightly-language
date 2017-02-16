@@ -7,30 +7,36 @@ def make_completion(trigger, label, contents):
 
 class SightlyCompletions(sublime_plugin.EventListener):
     def __init__(self):
-        self.supported_scopes = []
-        self.supported_scopes.append('meta.option-list.sightly')
-        self.supported_scopes.append('meta.block.sightly')
-        self.supported_scopes.append('text.html.sightly')
-        self.option_list_scope = "meta.option-list.sightly"
-        self.expression_scope = "meta.block.sightly"
-
+        self.scopes = {
+            'options': 'meta.option-list.sightly',
+            'expression': 'meta.block.sightly',
+            'data_block': 'text.html.sightly meta.tag - puctuation.definition.tag.end - puctuation.definition.tag.begin - string'
+        }
+        self.options_completions = self.get_default_options()
+        self.block_completions = self.get_sly_block_completions()
 
     def on_query_completions(self, view, prefix, locations):
-        in_options = view.match_selector(locations[0] - 1, self.option_list_scope)
-        in_expression = view.match_selector(locations[0], self.expression_scope)
-
-        # Supported scopes for completions
-        outside_expr = view.match_selector(locations[0], "text.html.sightly")
-        inside_expr = view.match_selector(locations[0], "source.sightly.embedded.html")
-
         # Return early if we aren't in any supported scopes
         if not self.in_supported_scope(view, locations[0]):
             return []
 
-        return self.get_completions(view, prefix, locations, in_options)
+        pt = locations[0] - len(prefix) - 1
+        ch = view.substr(sublime.Region(pt, pt + 1))
+        # print('prefix:', prefix)
+        # print('location0:', locations[0])
+        # print('substr:', view.substr(sublime.Region(locations[0], locations[0] + 3)), '!end!')
+        # print('ch:', ch)
+        # print('scope:', view.scope_name(locations[0]))
+
+        scope = None
+        if view.match_selector(pt, self.scopes['options']):
+            scope = 'options'
+        elif view.match_selector(pt, self.scopes['data_block']):
+            scope = 'data_block'
+        return self.get_completions(view, prefix, locations, scope)
 
     def in_supported_scope(self, view, point):
-        for scope in self.supported_scopes:
+        for scope in self.scopes.values():
             # If any of our scopes match the selector
             if view.match_selector(point, scope):
                 return True
@@ -38,22 +44,23 @@ class SightlyCompletions(sublime_plugin.EventListener):
         return False
 
     # TODO: change `in_options` to an enum-like thing `context` that can be flexible later.
-    def get_completions(self, view, prefix, locations, in_options):
+    def get_completions(self, view, prefix, locations, scope=None):
         pt = locations[0] - len(prefix) - 1
         ch = view.substr(sublime.Region(pt, pt + 1))
-
-        # print('prefix:', prefix)
-        # print('location0:', locations[0])
-        # print('substr:', view.substr(sublime.Region(locations[0], locations[0] + 3)), '!end!')
-        # print('ch:', ch)
-
-        if in_options:
+        completions = None
+        
+        if scope == 'options':
             # TODO: check if we need to add a space after a `@` or a `,`
-            return (self.default_options(), sublime.INHIBIT_WORD_COMPLETIONS)
+            completions = self.options_completions
+        elif scope == 'data_block' and ch in [' ', '\t', '\n']:
+            completions = self.block_completions
+        
+        if completions:
+            return (completions, sublime.INHIBIT_WORD_COMPLETIONS | sublime.INHIBIT_EXPLICIT_COMPLETIONS)
         else:
-            return (self.sly_block_completions(), sublime.INHIBIT_WORD_COMPLETIONS)
+            return []
 
-    def default_options(self):
+    def get_default_options(self):
         # basic completions for built-in options ie. `context='$1'` or ``prependPath='$1'`
         default_completions = []
         default_completions.extend(self.display_context_completions())
@@ -77,24 +84,19 @@ class SightlyCompletions(sublime_plugin.EventListener):
         ]
         return [make_completion(o, 'URI Options', "{0}='$1'".format(o)) for o in options]
 
-    def sly_block_completions(self):
+    def get_sly_block_completions(self):
         blocks_no_id = ['text', 'element', 'include', 'resource', 'call', 'unwrap']
         blocks_with_id = ['use', 'attribute', 'test', 'list', 'repeat', 'template']
 
-        contents_no_id = 'data-sly-{0}="${{$0}}"'
+        contents_no_id = 'data-sly-{0}="\${{$1\}}"'
         contents_id = 'data-sly-{0}.${{1:name}}="\${{$2\}}"'
-        # Add completions using just the block-type as trigger
+        # Trigger looks like `slytext` or `slyresource` etc.
         completions = [
-            make_completion(b, 'Data Sly Block', contents_no_id.format(b)) for b in blocks_no_id
+            make_completion('sly{}'.format(b), 'HTL Block Attr', 
+                contents_no_id.format(b)) for b in blocks_no_id
         ]
         completions.extend([
-            make_completion(b, 'Data Sly Block', contents_id.format(b)) for b in blocks_with_id
-        ])
-        # Add completions that appear while typing the full name
-        completions.extend([
-            make_completion('data-sly-{}'.format(b), 'Data Sly Block', contents_no_id.format(b)) for b in blocks_no_id
-        ])
-        completions.extend([
-            make_completion('data-sly-{}'.format(b), 'Data Sly Block', contents_id.format(b)) for b in blocks_with_id
+            make_completion('sly{}'.format(b), 'HTL Block Attr', 
+                contents_id.format(b)) for b in blocks_with_id
         ])
         return completions
