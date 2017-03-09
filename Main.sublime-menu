@@ -1,0 +1,31 @@
+[
+  {
+    "id": "preferences",
+    "children":
+    [
+      {
+        "caption": "Package Settings",
+        "id": "package-settings",
+        "children":
+        [
+          {
+            "caption": "Sightly",
+            "children":
+            [
+              {
+                "command": "open_file",
+                "args": {"file": "${packages}/Sightly/Sightly.sublime-settings"},
+                "caption": "Settings - Default"
+              },
+              {
+                "command": "open_file",
+                "args": {"file": "${packages}/User/Sightly.sublime-settings"},
+                "caption": "Settings - User"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
